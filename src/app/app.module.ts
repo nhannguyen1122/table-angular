@@ -11,6 +11,15 @@ import { CellTableComponent } from './component/table/cell/cell.component';
 import { ButtonComponent } from './component/button/button.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ParagraphComponent } from './component/paragraph/paragraph.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import {
+  HttpClient,
+  HttpClientModule,
+  HttpHandler,
+} from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -27,8 +36,12 @@ import { ParagraphComponent } from './component/paragraph/paragraph.component';
     MatTableModule,
     MatSortModule,
     MatCheckboxModule,
+    MatPaginatorModule,
+    HttpClientModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
   ],
-  providers: [],
+  providers: [HttpClient],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

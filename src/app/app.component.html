@@ -1,6 +1,11 @@
 <app-table
 [dataSource]="dataSource"
 [tableColumns]="displayColumns"
+[havePagination]="true"
+[paginationConfig]='tablePagination'
+[isLoading]="isLoading"
+(onPagination)="handlePagination($event)"
+(onSort)="handleSort($event)"
 ></app-table>
 
 <button mat-button (click)="handleSetNull(false)"> set null</button>

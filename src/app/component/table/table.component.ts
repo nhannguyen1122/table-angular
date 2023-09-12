@@ -5,12 +5,22 @@ import {
   OnChanges,
   SimpleChanges,
   ViewChild,
-  TemplateRef,
+  Output,
+  EventEmitter,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { IDataSource, ITableColumnsProps } from './table.interface';
+import {
+  IDataSource,
+  IPagination,
+  ISort,
+  ITableColumnsProps,
+} from './table.interface';
 import { Sort } from '@angular/material/sort';
 import { SelectionModel } from '@angular/cdk/collections';
+import { MatPaginator } from '@angular/material/paginator';
+import { ChangeDetectionStrategy } from '@angular/compiler';
+import { BehaviorSubject } from 'rxjs';
 
 export interface PeriodicElement {
   name: string;
@@ -44,12 +54,28 @@ export class TableComponent implements OnInit, OnChanges {
   protected displayedColumns: string[] = [];
   protected originDataSource = new MatTableDataSource<IDataSource<any>>([]);
   protected originTableColumns!: ITableColumnsProps<any>[];
+  protected tablePagination: IPagination = {
+    total: 0,
+    pageSize: 10,
+    pageIndex: 0,
+    pageSizeOptions: [5, 10, 20],
+    showFirstLastButtons: false,
+  };
 
   selection = new SelectionModel<IDataSource<any>>(true, []);
+
+  @Input() isLoading = new BehaviorSubject<boolean>(false);
 
   @Input() haveCheckbox: boolean = true;
   @Input() tableColumns!: ITableColumnsProps<any>[];
   @Input() dataSource: IDataSource<any>[] = [];
+  @Input() havePagination: boolean = false;
+  @Input() paginationConfig: IPagination = this.tablePagination;
+
+  @Output() onPagination = new EventEmitter();
+  @Output() onSort = new EventEmitter();
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   ngOnInit(): void {}
 
@@ -59,10 +85,16 @@ export class TableComponent implements OnInit, OnChanges {
       this.originTableColumns = this.tableColumns;
       this.displayedColumns = this.setDisplayColumns();
     }
+    if (this.havePagination) {
+      this.tablePagination = this.paginationConfig;
+    } else {
+      this.originDataSource.paginator = this.paginator;
+    }
   }
 
-  sortData(sort: any) {
-    console.log('sort', sort);
+  sortData(sortEvent: ISort) {
+    console.log('sort', sortEvent);
+    this.onSort.emit(sortEvent);
   }
 
   isAllSelected() {
@@ -83,7 +115,7 @@ export class TableComponent implements OnInit, OnChanges {
 
   /** The label for the checkbox on the passed row */
   checkboxLabel(row?: IDataSource<any>): string {
-    console.log('row', row);
+    // console.log('row', row);
 
     if (!row) {
       return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
@@ -91,6 +123,10 @@ export class TableComponent implements OnInit, OnChanges {
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${
       row['id'] + 1
     }`;
+  }
+
+  handlePaginate($event: any) {
+    this.onPagination.emit($event);
   }
 
   private setDisplayColumns(): string[] {

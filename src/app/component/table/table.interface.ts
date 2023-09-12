@@ -2,6 +2,19 @@ import { Component } from '@angular/core';
 import { SortDirection } from '@angular/material/sort';
 export type CellType = 'string' | 'number' | 'date' | 'customize';
 
+export interface IPagination {
+  total: number;
+  pageSize: number;
+  pageIndex: number;
+  pageSizeOptions: number[];
+  showFirstLastButtons?: boolean;
+}
+
+export interface ISort {
+  active: string;
+  direction: SortDirection;
+}
+
 export interface ITableColumnsProps<T> {
   columnDef: string;
   header: string;

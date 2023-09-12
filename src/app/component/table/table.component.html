@@ -1,4 +1,6 @@
-<table mat-table [dataSource]="originDataSource"  matSort (matSortChange)="sortData($event)" class="mat-elevation-z8">
+
+<table mat-table
+[dataSource]="originDataSource"  matSort (matSortChange)="sortData($event)" class="mat-elevation-z8">
           <ng-container matColumnDef="select">
             <th mat-header-cell *matHeaderCellDef>
               <mat-checkbox (change)="$event ? toggleAllRows() : null"
@@ -36,4 +38,18 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
-  
+  <ng-container *ngIf="havePagination">
+     <mat-paginator 
+    [pageSizeOptions]="tablePagination.pageSizeOptions"
+    [showFirstLastButtons]="tablePagination.showFirstLastButtons"
+    [pageIndex]="tablePagination.pageIndex"
+    [pageSize]="tablePagination.pageSize"
+    [length]="tablePagination.total"
+    (page)="handlePaginate($event)"
+    aria-label="Select page of periodic elements">
+  </mat-paginator>
+  </ng-container>
+ 
+  <div style="z-index: 99999;position: fixed;;display: flex; justify-content: center;align-items: center;width: 100%; height: 100%;" *ngIf="isLoading | async">
+    <mat-spinner style="z-index: 99999;"></mat-spinner>
+  </div>

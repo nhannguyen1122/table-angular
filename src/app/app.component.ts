@@ -1,10 +1,17 @@
 import { Component, OnInit, Type } from '@angular/core';
-import { ITableColumnsProps } from './component/table/table.interface';
+import {
+  IPagination,
+  ISort,
+  ITableColumnsProps,
+} from './component/table/table.interface';
 import { MatTableDataSource } from '@angular/material/table';
 import { CustomCell } from './component/table/cell/custom-cell.component';
 import { ButtonComponent } from './component/button/button.component';
 import { ParagraphComponent } from './component/paragraph/paragraph.component';
-
+import { AppService, GithubIssue } from './service/app.service';
+import { BehaviorSubject, map, merge, switchMap, take } from 'rxjs';
+import { of } from 'rxjs';
+import { SortDirection } from '@angular/material/sort';
 interface User {
   id: number;
   name: string;
@@ -19,78 +26,377 @@ interface User {
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
+  constructor(private appService: AppService) {}
   title = 'my-app';
-  dataSource!: User[];
-  displayColumns: ITableColumnsProps<User>[] = [
+  defaultSortCol = 'created_at';
+  isLoading = new BehaviorSubject<boolean>(false);
+  dataSource!: GithubIssue[];
+  tablePagination: IPagination = {
+    pageIndex: 0,
+    pageSize: 5,
+    total: 0,
+    pageSizeOptions: [4, 5, 6],
+    showFirstLastButtons: true,
+  };
+  displayColumns: ITableColumnsProps<GithubIssue>[] = [
     {
-      columnDef: 'name',
-      header: 'Họ và tên',
-      cellType: 'string',
-      isSort: true,
-      cell: (element: User) => {
-        return element.name;
-      },
-    },
-    {
-      columnDef: 'age',
-      header: 'tuổi',
-      cellType: 'string',
-      cell: (element: User) => {
-        return element.age;
-      },
-    },
-    {
-      columnDef: 'phoneNumber',
-      header: 'Số điện thoại',
+      columnDef: 'created',
+      header: 'Ngày tạo',
       cellType: 'date',
       isSort: true,
-      cell: (element: User) => {
-        return element.phoneNumber;
+      cell: (element: GithubIssue) => {
+        return element.created_at;
       },
     },
     {
-      columnDef: 'action',
-      header: 'Hành động',
-      cellType: 'customize',
+      columnDef: 'title',
+      header: 'Tên issue',
+      cellType: 'string',
+      cell: (element: GithubIssue) => {
+        return element.title;
+      },
+    },
+    {
+      columnDef: 'state',
+      header: 'Trạng thái',
+      cellType: 'string',
       isSort: true,
-      cell: (element: User) => {
-        return element.action;
+      cell: (element: GithubIssue) => {
+        return element.state;
+      },
+    },
+    {
+      columnDef: 'updated_at',
+      header: 'Ngày cập nhật',
+      cellType: 'date',
+      isSort: true,
+      cell: (element: GithubIssue) => {
+        return element.updated_at;
       },
     },
   ];
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.getList();
+  }
+
+  getList(
+    {
+      pageIndex,
+      active,
+      sortDirection,
+    }: {
+      pageIndex: number;
+      active: string;
+      sortDirection: SortDirection;
+    } = {
+      pageIndex: this.tablePagination.pageIndex,
+      active: '',
+      sortDirection: 'asc',
+    }
+  ) {
+    merge(of(pageIndex, active, sortDirection))
+      .pipe(
+        take(1),
+        switchMap(() => {
+          return this.appService
+            .getRepoIssues(active, sortDirection, pageIndex)
+            .pipe(
+              map((res) => {
+                this.isLoading.next(false);
+
+                this.dataSource = res.items;
+                this.tablePagination.total = res.total_count;
+              })
+            );
+        })
+      )
+      .subscribe((res) => {});
+    // this.isLoading.next(true);
+    // this.appService
+    //   .getRepoIssues(active, sortDirection, pageIndex)
+    //   .subscribe((res) => {
+    //     this.isLoading.next(false);
+
+    //     this.dataSource = res.items;
+    //     this.tablePagination.total = res.total_count;
+    //   });
+  }
   isCheck = false;
   handleSetNull(boolean: boolean) {
-    if (this.isCheck) {
-      this.isCheck = false;
-      this.dataSource = [];
-    } else {
-      this.isCheck = true;
-      this.dataSource = [
-        {
-          id: 1,
-          name: 'nhan',
-          age: 12,
-          phoneNumber: new Date(),
-          action: new CustomCell(ButtonComponent, 'hihcxzcxzi'),
-        },
-        {
-          id: 2,
-          name: 'nha1n',
-          age: 15,
-          phoneNumber: 1234,
-          action: new CustomCell(ParagraphComponent, 'hihi'),
-        },
-        {
-          id: 3,
-          name: 'nha2n',
-          age: 13,
-          phoneNumber: 1234,
-          action: new CustomCell(ButtonComponent, 'hihi'),
-        },
-      ] as User[];
-      console.log('vao day', this.isCheck);
-    }
+    // if (this.isCheck) {
+    //   this.isCheck = false;
+    //   this.dataSource = [];
+    // } else {
+    //   this.isCheck = true;
+    //   const fakeData = [
+    //     {
+    //       id: 1,
+    //       name: 'nhan',
+    //       age: 12,
+    //       phoneNumber: new Date(),
+    //       action: new CustomCell(ButtonComponent, 'hihcxzcxzi'),
+    //     },
+    //     {
+    //       id: 2,
+    //       name: 'nha1n',
+    //       age: 15,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ParagraphComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 3,
+    //       name: 'nha2n',
+    //       age: 13,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ButtonComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 1,
+    //       name: 'nhan',
+    //       age: 12,
+    //       phoneNumber: new Date(),
+    //       action: new CustomCell(ButtonComponent, 'hihcxzcxzi'),
+    //     },
+    //     {
+    //       id: 2,
+    //       name: 'nha1n',
+    //       age: 15,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ParagraphComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 3,
+    //       name: 'nha2n',
+    //       age: 13,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ButtonComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 1,
+    //       name: 'nhan',
+    //       age: 12,
+    //       phoneNumber: new Date(),
+    //       action: new CustomCell(ButtonComponent, 'hihcxzcxzi'),
+    //     },
+    //     {
+    //       id: 2,
+    //       name: 'nha1n',
+    //       age: 15,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ParagraphComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 3,
+    //       name: 'nha2n',
+    //       age: 13,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ButtonComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 1,
+    //       name: 'nhan',
+    //       age: 12,
+    //       phoneNumber: new Date(),
+    //       action: new CustomCell(ButtonComponent, 'hihcxzcxzi'),
+    //     },
+    //     {
+    //       id: 2,
+    //       name: 'nha1n',
+    //       age: 15,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ParagraphComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 3,
+    //       name: 'nha2n',
+    //       age: 13,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ButtonComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 1,
+    //       name: 'nhan',
+    //       age: 12,
+    //       phoneNumber: new Date(),
+    //       action: new CustomCell(ButtonComponent, 'hihcxzcxzi'),
+    //     },
+    //     {
+    //       id: 2,
+    //       name: 'nha1n',
+    //       age: 15,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ParagraphComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 3,
+    //       name: 'nha2n',
+    //       age: 13,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ButtonComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 1,
+    //       name: 'nhan',
+    //       age: 12,
+    //       phoneNumber: new Date(),
+    //       action: new CustomCell(ButtonComponent, 'hihcxzcxzi'),
+    //     },
+    //     {
+    //       id: 2,
+    //       name: 'nha1n',
+    //       age: 15,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ParagraphComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 3,
+    //       name: 'nha2n',
+    //       age: 13,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ButtonComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 1,
+    //       name: 'nhan',
+    //       age: 12,
+    //       phoneNumber: new Date(),
+    //       action: new CustomCell(ButtonComponent, 'hihcxzcxzi'),
+    //     },
+    //     {
+    //       id: 2,
+    //       name: 'nha1n',
+    //       age: 15,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ParagraphComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 3,
+    //       name: 'nha2n',
+    //       age: 13,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ButtonComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 1,
+    //       name: 'nhan',
+    //       age: 12,
+    //       phoneNumber: new Date(),
+    //       action: new CustomCell(ButtonComponent, 'hihcxzcxzi'),
+    //     },
+    //     {
+    //       id: 2,
+    //       name: 'nha1n',
+    //       age: 15,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ParagraphComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 3,
+    //       name: 'nha2n',
+    //       age: 13,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ButtonComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 1,
+    //       name: 'nhan',
+    //       age: 12,
+    //       phoneNumber: new Date(),
+    //       action: new CustomCell(ButtonComponent, 'hihcxzcxzi'),
+    //     },
+    //     {
+    //       id: 2,
+    //       name: 'nha1n',
+    //       age: 15,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ParagraphComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 3,
+    //       name: 'nha2n',
+    //       age: 13,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ButtonComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 1,
+    //       name: 'nhan',
+    //       age: 12,
+    //       phoneNumber: new Date(),
+    //       action: new CustomCell(ButtonComponent, 'hihcxzcxzi'),
+    //     },
+    //     {
+    //       id: 2,
+    //       name: 'nha1n',
+    //       age: 15,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ParagraphComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 3,
+    //       name: 'nha2n',
+    //       age: 13,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ButtonComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 1,
+    //       name: 'nhan',
+    //       age: 12,
+    //       phoneNumber: new Date(),
+    //       action: new CustomCell(ButtonComponent, 'hihcxzcxzi'),
+    //     },
+    //     {
+    //       id: 2,
+    //       name: 'nha1n',
+    //       age: 15,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ParagraphComponent, 'hihi'),
+    //     },
+    //     {
+    //       id: 3,
+    //       name: 'nha2n',
+    //       age: 13,
+    //       phoneNumber: 1234,
+    //       action: new CustomCell(ButtonComponent, 'hihi'),
+    //     },
+    //   ] as User[];
+    //   this.dataSource = fakeData;
+    //   this.tablePagination = {
+    //     ...this.tablePagination,
+    //     total: fakeData.length,
+    //   };
+    //   console.log('vao day', this.isCheck);
+    // }
+  }
+
+  handlePagination({
+    previousPageIndex,
+    pageIndex,
+    pageSize,
+    length,
+  }: {
+    previousPageIndex: number;
+    pageIndex: number;
+    pageSize: number;
+    length: number;
+  }) {
+    this.tablePagination.pageIndex = pageIndex;
+    this.getList({
+      pageIndex: pageIndex,
+      active: this.defaultSortCol,
+      sortDirection: 'asc',
+    });
+  }
+
+  handleSort($event: ISort) {
+    console.log('$event', $event);
+
+    this.getList({
+      pageIndex: this.tablePagination.pageIndex,
+      active: $event.active,
+      sortDirection: $event.direction,
+    });
   }
 }
