@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { SortDirection } from '@angular/material/sort';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppService {
+  btnClick$ = new Subject();
   constructor(private _httpClient: HttpClient) {}
 
   getRepoIssues(
@@ -21,6 +22,10 @@ export class AppService {
 
     return this._httpClient.get<GithubApi>(requestUrl);
   }
+
+  handleClick(item: any) {
+    this.btnClick$.next(item);
+  }
 }
 
 export interface GithubApi {
@@ -30,7 +35,7 @@ export interface GithubApi {
 
 export interface GithubIssue {
   created_at: string;
-  updated_at: string;
+  updated_at: any;
   number: string;
   state: string;
   title: string;

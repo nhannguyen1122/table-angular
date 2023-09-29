@@ -1,0 +1,16 @@
+@page {
+    size: A4;
+   
+  }
+  @media print {
+    html, body,#print-container,div {
+    //   width: 210mm;
+      height: 100%;
+      border:1px solid red;
+      overflow: hidden;
+      break-inside: avoid-page;
+      page-break-after:avoid-page;
+      page-break-inside:avoid-page;
+    }
+    /* ... the rest of the rules ... */
+  }

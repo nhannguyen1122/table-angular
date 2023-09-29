@@ -20,6 +20,7 @@ import {
   HttpClientModule,
   HttpHandler,
 } from '@angular/common/http';
+import { PrintComponent } from './component/print/print.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import {
     CellTableComponent,
     ButtonComponent,
     ParagraphComponent,
+    PrintComponent,
   ],
   imports: [
     BrowserModule,

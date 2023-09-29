@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { AppService } from 'src/app/service/app.service';
 
 @Component({
   selector: 'app-button',
@@ -7,4 +8,9 @@ import { Component, Input } from '@angular/core';
 })
 export class ButtonComponent {
   @Input() data: string = '';
+
+  constructor(private appService: AppService) {}
+  handleClick() {
+    this.appService.handleClick('nhandz');
+  }
 }

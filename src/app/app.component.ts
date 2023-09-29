@@ -1,4 +1,4 @@
-import { Component, OnInit, Type } from '@angular/core';
+import { Component, OnInit, Type, ViewChild } from '@angular/core';
 import {
   IPagination,
   ISort,
@@ -12,6 +12,7 @@ import { AppService, GithubIssue } from './service/app.service';
 import { BehaviorSubject, map, merge, switchMap, take } from 'rxjs';
 import { of } from 'rxjs';
 import { SortDirection } from '@angular/material/sort';
+import { PrintComponent } from './component/print/print.component';
 interface User {
   id: number;
   name: string;
@@ -26,6 +27,8 @@ interface User {
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
+  @ViewChild('printer', { static: true }) printer!: PrintComponent;
+
   constructor(private appService: AppService) {}
   title = 'my-app';
   defaultSortCol = 'created_at';
@@ -68,7 +71,7 @@ export class AppComponent implements OnInit {
     {
       columnDef: 'updated_at',
       header: 'Ngày cập nhật',
-      cellType: 'date',
+      cellType: 'customize',
       isSort: true,
       cell: (element: GithubIssue) => {
         return element.updated_at;
@@ -78,6 +81,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.getList();
+    console.log('dsa', this.printer);
   }
 
   getList(
@@ -105,7 +109,12 @@ export class AppComponent implements OnInit {
               map((res) => {
                 this.isLoading.next(false);
 
-                this.dataSource = res.items;
+                this.dataSource = res.items.map((i) => {
+                  return {
+                    ...i,
+                    updated_at: new CustomCell(ButtonComponent, 'hihi'),
+                  };
+                });
                 this.tablePagination.total = res.total_count;
               })
             );
@@ -398,5 +407,9 @@ export class AppComponent implements OnInit {
       active: $event.active,
       sortDirection: $event.direction,
     });
+  }
+
+  print() {
+    this.printer.print();
   }
 }

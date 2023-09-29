@@ -21,6 +21,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { MatPaginator } from '@angular/material/paginator';
 import { ChangeDetectionStrategy } from '@angular/compiler';
 import { BehaviorSubject } from 'rxjs';
+import { AppService } from 'src/app/service/app.service';
 
 export interface PeriodicElement {
   name: string;
@@ -62,6 +63,8 @@ export class TableComponent implements OnInit, OnChanges {
     showFirstLastButtons: false,
   };
 
+  constructor(private appService: AppService) {}
+
   selection = new SelectionModel<IDataSource<any>>(true, []);
 
   @Input() isLoading = new BehaviorSubject<boolean>(false);
@@ -77,7 +80,11 @@ export class TableComponent implements OnInit, OnChanges {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.appService.btnClick$.subscribe((res) => {
+      console.log('res', res);
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (this.tableColumns) {
