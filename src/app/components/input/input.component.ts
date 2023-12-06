@@ -117,8 +117,8 @@ export class InputComponent implements OnInit {
     if (!this.handleCheckValidTypingWords().isValid) {
       this.displayError(
         `Không tìm thấy dữ liệu về từ: ${this.handleCheckValidTypingWords()
-          .invalidWordsArr.filter((i) => i)
-          .map((i) => i.value)
+          .invalidWordsArr.map((i) => i.value)
+          .filter((i) => i)
           .join(', ')}`
       );
       return false;
@@ -184,12 +184,12 @@ export class InputComponent implements OnInit {
       });
     }
 
-    return (validateConfig = {
+    return {
       ...validateConfig,
       isValid:
         validateConfig.invalidWordsArr.filter((i) => !i.isValid && i.value)
           .length === 0,
-    });
+    };
   }
 
   //check each word is in txt file
