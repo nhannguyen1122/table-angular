@@ -8,6 +8,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { SentenceService } from 'src/app/service/sentence.service';
 import { LoadPath } from 'src/app/app.constant';
 import { forkJoin } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 /**
  * @title Chips with form control
@@ -22,12 +23,15 @@ export class InputComponent implements OnInit {
   dataState: any = null;
   words = [];
 
-  keywords = [];
+  keywords = [] as string[];
   formControl = new FormControl(['']);
 
   announcer = inject(LiveAnnouncer);
 
-  constructor(private senetenceService: SentenceService) {}
+  constructor(
+    private senetenceService: SentenceService,
+    private snackbar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.senetenceService.forkAllfile().subscribe((res: any) => {
@@ -92,9 +96,119 @@ export class InputComponent implements OnInit {
   }
 
   handleSetSentence() {
+    console.log('data state', this.dataState);
+
     console.log('formControl.value', this.keywords);
+    if (this.validator()) {
+      console.log('vao day');
+    }
   }
+
+  private validator() {
+    let isValid = true;
+
+    if (this.keywords.length === 0) {
+      this.displayError(
+        'Bạn chưa thêm dữ liệu, vui lòng nhập và ấn enter để thêm từ!'
+      );
+      return false;
+    }
+
+    if (!this.handleCheckValidTypingWords().isValid) {
+      this.displayError(
+        `Không tìm thấy dữ liệu về từ: ${this.handleCheckValidTypingWords()
+          .invalidWordsArr.filter((i) => i)
+          .map((i) => i.value)
+          .join(', ')}`
+      );
+      return false;
+    }
+
+    if (!this.handleCheckDuplicate().isValid) {
+      this.displayError(
+        `Các từ không được trùng nhau quá 3 lần:${this.handleCheckDuplicate().invalidWordsArr.join(
+          ','
+        )}`
+      );
+      return false;
+    }
+
+    return isValid;
+  }
+
   private mapData(data: string) {
     return data.trim().split(', ');
+  }
+
+  //check more than 3 words
+  private handleCheckDuplicate() {
+    let validateConfig = {
+      invalidWordsArr: [] as string[],
+    };
+
+    this.keywords.some((keyword: string, index: number) => {
+      if (this.keywords.indexOf(keyword) !== index) {
+        validateConfig.invalidWordsArr.push(keyword);
+      }
+    });
+    console.log('validateConfig', {
+      isValid: validateConfig.invalidWordsArr.length < 3,
+      invalidWordsArr: validateConfig.invalidWordsArr,
+    });
+
+    return {
+      isValid: validateConfig.invalidWordsArr.length < 3,
+      invalidWordsArr: validateConfig.invalidWordsArr,
+    };
+  }
+
+  //check all words enter have in txt file
+  private handleCheckValidTypingWords() {
+    let validateConfig = {
+      isValid: true,
+      invalidWordsArr: [] as {
+        isValid: boolean;
+        value: string | null;
+      }[],
+    };
+    for (
+      let typingWordIndex = 0;
+      typingWordIndex < this.keywords.length;
+      typingWordIndex++
+    ) {
+      validateConfig.invalidWordsArr.push({
+        value: !this.isExistedWord(this.keywords[typingWordIndex])
+          ? this.keywords[typingWordIndex]
+          : null,
+        isValid: this.isExistedWord(this.keywords[typingWordIndex]),
+      });
+    }
+
+    return (validateConfig = {
+      ...validateConfig,
+      isValid:
+        validateConfig.invalidWordsArr.filter((i) => !i.isValid && i.value)
+          .length === 0,
+    });
+  }
+
+  //check each word is in txt file
+  private isExistedWord(typingword: string) {
+    let isExisted = false;
+    for (let property in this.dataState) {
+      if (this.dataState[property].indexOf(typingword) > -1) {
+        isExisted = true;
+      }
+    }
+    return isExisted;
+  }
+
+  private displayError(msg: string) {
+    this.snackbar.open(msg, 'Lỗi', {
+      duration: 2000,
+      direction: 'ltr',
+      horizontalPosition: 'right',
+      verticalPosition: 'top',
+    });
   }
 }

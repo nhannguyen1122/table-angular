@@ -10,6 +10,8 @@ import { InputComponent } from './components/input/input.component';
 import { ResultsComponent } from './components/results/results.component';
 import { MatChipsModule } from '@angular/material/chips';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+
 import { MatInputModule } from '@angular/material/input';
 import {
   HttpClient,
@@ -31,6 +33,7 @@ import {
     BrowserAnimationsModule,
     MatInputModule,
     HttpClientModule,
+    MatSnackBarModule,
   ],
 
   providers: [],

@@ -19,9 +19,9 @@
   <div style="margin-bottom: 5px; text-align: center;">
     <button mat-raised-button [disabled]="keywords.length===0" (click)="keywords=[]">Xóa tất cả</button>
     &nbsp;
-    <button mat-raised-button [disabled]="keywords.length===0" (click)="handleSetSentence()">Sắp xếp</button>
+    <button mat-raised-button  (click)="handleSetSentence()">Sắp xếp</button>
 </div>
   <p>
-    <strong>The following keywords are entered:</strong> {{formControl.value}}
+    <strong>Ấn enter để thêm từ</strong> {{formControl.value}}
   </p> 
   
