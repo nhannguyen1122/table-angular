@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { SentenceService } from 'src/app/service/sentence.service';
-import { LoadPath } from 'src/app/app.constant';
+import { LoadPath, WordsDefinition } from 'src/app/app.constant';
 import { forkJoin } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -33,45 +33,66 @@ export class InputComponent implements OnInit {
     private snackbar: MatSnackBar
   ) {}
 
+  @Output() dataEmitter = new EventEmitter<any>();
+
   ngOnInit(): void {
+    console.log('WordsDefinition', WordsDefinition);
+
     this.senetenceService.forkAllfile().subscribe((res: any) => {
       this.dataState = {
-        [LoadPath.DAI_TU]: this.mapData(res[LoadPath.DAI_TU]),
-        [LoadPath.DAI_TU_CHI_DINH]: this.mapData(res[LoadPath.DAI_TU_CHI_DINH]),
-        [LoadPath.DANH_TU]: this.mapData(res[LoadPath.DANH_TU]),
-        [LoadPath.DANH_TU_CHI_DVDL]: this.mapData(
+        [WordsDefinition[LoadPath.DAI_TU]]: this.mapData(res[LoadPath.DAI_TU]),
+        [WordsDefinition[LoadPath.DAI_TU_CHI_DINH]]: this.mapData(
+          res[LoadPath.DAI_TU_CHI_DINH]
+        ),
+        [WordsDefinition[LoadPath.DANH_TU]]: this.mapData(
+          res[LoadPath.DANH_TU]
+        ),
+        [WordsDefinition[LoadPath.DANH_TU_CHI_DVDL]]: this.mapData(
           res[LoadPath.DANH_TU_CHI_DVDL]
         ),
-        [LoadPath.DANH_TU_LOAI_THE]: this.mapData(
+        [WordsDefinition[LoadPath.DANH_TU_TONG_LUONG]]: this.mapData(
+          res[LoadPath.DANH_TU_TONG_LUONG]
+        ),
+        [WordsDefinition[LoadPath.DANH_TU_LOAI_THE]]: this.mapData(
           res[LoadPath.DANH_TU_LOAI_THE]
         ),
-        [LoadPath.DINH_TU_CHI_SO_LUONG]: this.mapData(
+        [WordsDefinition[LoadPath.DINH_TU_CHI_SO_LUONG]]: this.mapData(
           res[LoadPath.DINH_TU_CHI_SO_LUONG]
         ),
-        [LoadPath.DONG_TU]: this.mapData(res[LoadPath.DONG_TU]),
-        [LoadPath.PHO_TU_DUNG_SAU]: this.mapData(res[LoadPath.PHO_TU_DUNG_SAU]),
-        [LoadPath.PHO_TU_DUNG_TRUOC]: this.mapData(
+        [WordsDefinition[LoadPath.DONG_TU]]: this.mapData(
+          res[LoadPath.DONG_TU]
+        ),
+        [WordsDefinition[LoadPath.PHO_TU_DUNG_SAU]]: this.mapData(
+          res[LoadPath.PHO_TU_DUNG_SAU]
+        ),
+        [WordsDefinition[LoadPath.PHO_TU_DUNG_TRUOC]]: this.mapData(
           res[LoadPath.PHO_TU_DUNG_TRUOC]
         ),
-        [LoadPath.QUAN_HE_TU]: this.mapData(res[LoadPath.QUAN_HE_TU]),
-        [LoadPath.SO_TU_CHI_SO_LUONG]: this.mapData(
+        [WordsDefinition[LoadPath.QUAN_HE_TU]]: this.mapData(
+          res[LoadPath.QUAN_HE_TU]
+        ),
+        [WordsDefinition[LoadPath.SO_TU_CHI_SO_LUONG]]: this.mapData(
           res[LoadPath.SO_TU_CHI_SO_LUONG]
         ),
-        [LoadPath.THAN_TU]: this.mapData(res[LoadPath.THAN_TU]),
-        [LoadPath.TINH_THAI_TU]: this.mapData(res[LoadPath.TINH_THAI_TU]),
-        [LoadPath.TINH_THAI_TU_CAU_KHIEN]: this.mapData(
+        [WordsDefinition[LoadPath.THAN_TU]]: this.mapData(
+          res[LoadPath.THAN_TU]
+        ),
+        [WordsDefinition[LoadPath.TINH_THAI_TU]]: this.mapData(
+          res[LoadPath.TINH_THAI_TU]
+        ),
+        [WordsDefinition[LoadPath.TINH_THAI_TU_CAU_KHIEN]]: this.mapData(
           res[LoadPath.TINH_THAI_TU_CAU_KHIEN]
         ),
-        [LoadPath.TINH_THAI_TU_NGHI_VAN]: this.mapData(
+        [WordsDefinition[LoadPath.TINH_THAI_TU_NGHI_VAN]]: this.mapData(
           res[LoadPath.TINH_THAI_TU_NGHI_VAN]
         ),
-        [LoadPath.TINH_TU]: this.mapData(res[LoadPath.TINH_TU]),
-        [LoadPath.TINH_TU_CACH_THUC_MUC_DO]: this.mapData(
+        [WordsDefinition[LoadPath.TINH_TU]]: this.mapData(
+          res[LoadPath.TINH_TU]
+        ),
+        [WordsDefinition[LoadPath.TINH_TU_CACH_THUC_MUC_DO]]: this.mapData(
           res[LoadPath.TINH_TU_CACH_THUC_MUC_DO]
         ),
       };
-
-      console.log('wordState', this.dataState);
     });
   }
 
@@ -84,6 +105,7 @@ export class InputComponent implements OnInit {
   }
 
   add(event: MatChipInputEvent): void {
+    console.log('dataState', this.dataState);
     const value = (event.value || '').trim();
 
     // Add our keyword
@@ -100,13 +122,24 @@ export class InputComponent implements OnInit {
 
     console.log('formControl.value', this.keywords);
     if (this.validator()) {
-      console.log('vao day');
+      //find all words entered in type
+      const classifiedWords = this.senetenceService.setTypeWordsInSentence(
+        this.keywords,
+        this.dataState
+      );
+
+      const phases =
+        this.senetenceService.arrangeWordsIntoPhases(classifiedWords);
+      const subject = this.senetenceService.arrangeIntoSubject(phases);
+      const sentence =
+        this.senetenceService.arrangeThePhraseIntoSentences(subject);
+      this.dataEmitter.emit(sentence);
     }
   }
 
   private validator() {
     let isValid = true;
-
+    const MAXWORDS = 5;
     if (this.keywords.length === 0) {
       this.displayError(
         'Bạn chưa thêm dữ liệu, vui lòng nhập và ấn enter để thêm từ!'
@@ -124,12 +157,13 @@ export class InputComponent implements OnInit {
       return false;
     }
 
-    if (!this.handleCheckDuplicate().isValid) {
-      this.displayError(
-        `Các từ không được trùng nhau quá 3 lần:${this.handleCheckDuplicate().invalidWordsArr.join(
-          ','
-        )}`
-      );
+    if (this.handleCheckDuplicate()) {
+      this.displayError(`Các từ không được trùng nhau quá 3 lần`);
+      return false;
+    }
+
+    if (this.keywords.length > MAXWORDS) {
+      this.displayError('Không được nhập quá 5 từ, vui lòng nhập lại!');
       return false;
     }
 
@@ -142,24 +176,13 @@ export class InputComponent implements OnInit {
 
   //check more than 3 words
   private handleCheckDuplicate() {
-    let validateConfig = {
-      invalidWordsArr: [] as string[],
-    };
-
-    this.keywords.some((keyword: string, index: number) => {
-      if (this.keywords.indexOf(keyword) !== index) {
-        validateConfig.invalidWordsArr.push(keyword);
+    let isValid = true;
+    for (let i = 0; i < this.keywords.length; i++) {
+      if (this.keywords.filter((x) => x === this.keywords[i]).length > 3) {
+        return false;
       }
-    });
-    console.log('validateConfig', {
-      isValid: validateConfig.invalidWordsArr.length < 3,
-      invalidWordsArr: validateConfig.invalidWordsArr,
-    });
-
-    return {
-      isValid: validateConfig.invalidWordsArr.length < 3,
-      invalidWordsArr: validateConfig.invalidWordsArr,
-    };
+    }
+    return isValid;
   }
 
   //check all words enter have in txt file

@@ -2,7 +2,9 @@
 
   <h1>Ghép chữ tiếng Việt thành câu</h1>
 
-<app-input></app-input>
-
-<app-results></app-results>
+<app-input (dataEmitter)="handleSetData($event)"></app-input>
+&nbsp;
+<div style="width:60%">
+<app-results [dataSource]="dataSource"></app-results>
+</div>
 </div>

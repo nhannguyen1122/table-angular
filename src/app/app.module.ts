@@ -11,6 +11,7 @@ import { ResultsComponent } from './components/results/results.component';
 import { MatChipsModule } from '@angular/material/chips';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
 
 import { MatInputModule } from '@angular/material/input';
 import {
@@ -34,6 +35,7 @@ import {
     MatInputModule,
     HttpClientModule,
     MatSnackBarModule,
+    MatTableModule,
   ],
 
   providers: [],
