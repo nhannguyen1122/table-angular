@@ -36,8 +36,7 @@ export class InputComponent implements OnInit {
   @Output() dataEmitter = new EventEmitter<any>();
 
   ngOnInit(): void {
-    console.log('WordsDefinition', WordsDefinition);
-
+    // 1:load file
     this.senetenceService.forkAllfile().subscribe((res: any) => {
       this.dataState = {
         [WordsDefinition[LoadPath.DAI_TU]]: this.mapData(res[LoadPath.DAI_TU]),
@@ -133,7 +132,13 @@ export class InputComponent implements OnInit {
       const subject = this.senetenceService.arrangeIntoSubject(phases);
       const sentence =
         this.senetenceService.arrangeThePhraseIntoSentences(subject);
-      this.dataEmitter.emit(sentence);
+      console.log('', sentence);
+
+      this.dataEmitter.emit(
+        sentence
+          .filter((i) => !isNaN(i.point))
+          .sort((a, b) => b.point - a.point)
+      );
     }
   }
 
@@ -157,7 +162,7 @@ export class InputComponent implements OnInit {
       return false;
     }
 
-    if (this.handleCheckDuplicate()) {
+    if (!this.handleCheckDuplicate()) {
       this.displayError(`Các từ không được trùng nhau quá 3 lần`);
       return false;
     }
@@ -179,7 +184,7 @@ export class InputComponent implements OnInit {
     let isValid = true;
     for (let i = 0; i < this.keywords.length; i++) {
       if (this.keywords.filter((x) => x === this.keywords[i]).length > 3) {
-        return false;
+        isValid = false;
       }
     }
     return isValid;

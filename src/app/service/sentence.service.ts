@@ -71,6 +71,8 @@ export class SentenceService {
       list.push(words[i]?.types.map((ele) => ele + ', ' + words[i]?.value));
     }
     let permus = this.permutation(list) as any[]; // Sinh hoán vị array 2D
+    console.log('permus', permus);
+
     const rules = PhasesRules;
     const addV = [] as any[]; // Xóa phần tử trùng sau khi tạo cụm từ
     permus.forEach((permu) => {
@@ -82,6 +84,8 @@ export class SentenceService {
         let i = elm.split(', ');
         couple.push({ type: i[0], value: i[1] });
       });
+      // console.log('couple', couple);
+
       couple.forEach((elm) => {
         if (elm.type === TYPE_PHRASE.slice(4, TYPE_PHRASE.length)) f = true;
       });
@@ -102,21 +106,30 @@ export class SentenceService {
             }
           });
         });
+        console.log('result', result);
+
+        console.log('Object.keys(result.values)', Object.keys(result.values));
 
         // Loại bỏ những cụm từ chỉ được tạo bởi một từ
         if (Object.keys(result.values).length > 1) {
           const addI = new Array(10).fill(0);
           let f2 = true;
           for (let property in result.values) {
+            console.warn('property', result.values);
+
             addI[result.values[property].index]++;
             if (addI[result.values[property].index] > 1) f2 = false;
           }
+          console.log('addI sau khi thực hiện logic check', addI);
+
           if (f2) {
             // Loại bỏ những cụm từ giống nhau về value + point
             let tmp = '' as any;
             for (let property in result.values) {
               tmp = tmp + result.values[property].value + '-';
             }
+            console.log('tmp', tmp);
+
             if (!addV.includes(tmp)) {
               f5 = true;
               ans.push([result]);
@@ -143,6 +156,9 @@ export class SentenceService {
         });
       }
     });
+
+    console.log('ans', ans);
+
     ans.forEach((elm) => {
       elm.forEach((elm2) => {
         if (
@@ -152,6 +168,8 @@ export class SentenceService {
         ) {
           const a = elm2.values;
           const flatArr = Object.entries(a) as any;
+          console.log('object.entries', flatArr);
+
           flatArr.sort((v1, v2) => v2[1].index - v1[1].index);
           const resObj = {};
           const arr = [] as any[];
@@ -172,6 +190,8 @@ export class SentenceService {
         }
       });
     });
+    console.log('final ans', ans);
+
     return ans;
   }
 
@@ -221,10 +241,14 @@ export class SentenceService {
   }
 
   arrangeIntoSubject(phrase) {
+    console.error('arrangeIntoSubject', phrase);
+
     let ans = [] as any[];
     phrase.forEach((elm) => {
       let couple = [] as any[];
       elm.forEach((e) => {
+        console.log('phrase ', elm);
+
         let valueOfPhrase = '';
         let valueOfword = '';
         if (!e.types) {
@@ -232,6 +256,8 @@ export class SentenceService {
             valueOfPhrase += k.value + ' ';
           });
         }
+        console.log('valueOfPhrase', valueOfPhrase);
+
         if (e.types) {
           valueOfword = e.value;
         }
@@ -242,22 +268,32 @@ export class SentenceService {
           });
           couple.push(tmp);
         } else couple.push([`${e.type}, ${valueOfPhrase}, ${e.point}`]);
+
+        console.log('couple', couple);
       });
       // chuyển thành dạng mảng string để sinh hoán vị
       couple = this.permutation(couple);
+      console.log('couple permu', couple);
+
       const b = couple.map((elm) => {
         return elm.map((elm2) => {
           const i = {} as any;
           const a = elm2.split(', ');
+          // console.log('a', a);
+
           i.type = a[0];
           i.value = a[1].trim();
           i.point = +a[2];
           return i;
         });
       });
+      console.log('b', b);
+
       // sinh xong hoán vị trả về kiểu mảng object
       ans = [...ans, ...CFirst(b), ...VFirst(b)];
     });
+    console.log('ans', ans);
+
     return ans;
   }
 
