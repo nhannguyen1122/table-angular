@@ -1,4 +1,4 @@
-<app-table
+<!-- <app-table
 [dataSource]="dataSource"
 [tableColumns]="displayColumns"
 [havePagination]="true"
@@ -10,4 +10,10 @@
 
 <button mat-button (click)="handleSetNull(false)"> set null</button>
 <app-print #printer></app-print>
-<button mat-button (click)="print()"> Print</button> 
+<button mat-button (click)="print()"> Print</button>  -->
+&nbsp;
+<div [formGroup]="form">
+    <app-suggestion-options 
+    [list]="list"
+    formControlName="option"></app-suggestion-options>
+</div>

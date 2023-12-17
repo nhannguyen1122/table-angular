@@ -13,6 +13,7 @@ import { BehaviorSubject, map, merge, switchMap, take } from 'rxjs';
 import { of } from 'rxjs';
 import { SortDirection } from '@angular/material/sort';
 import { PrintComponent } from './component/print/print.component';
+import { FormBuilder, FormGroup } from '@angular/forms';
 interface User {
   id: number;
   name: string;
@@ -29,7 +30,7 @@ interface User {
 export class AppComponent implements OnInit {
   @ViewChild('printer', { static: true }) printer!: PrintComponent;
 
-  constructor(private appService: AppService) {}
+  constructor(private appService: AppService, private fb: FormBuilder) {}
   title = 'my-app';
   defaultSortCol = 'created_at';
   isLoading = new BehaviorSubject<boolean>(false);
@@ -78,10 +79,35 @@ export class AppComponent implements OnInit {
       },
     },
   ];
-
+  form!: FormGroup;
+  list = [] as any;
   ngOnInit(): void {
     this.getList();
     console.log('dsa', this.printer);
+    this.form = this.fb.group({
+      option: 'dsadas',
+    });
+
+    this.form.valueChanges.subscribe((res) => {
+      console.log('res', res);
+    });
+
+    setTimeout(() => {
+      this.list = [
+        {
+          label: 'Lựa chọn 1',
+          value: 1,
+        },
+        {
+          label: 'Lựa chọn 2',
+          value: 2,
+        },
+        {
+          label: 'Lựa chọn 3',
+          value: 3,
+        },
+      ];
+    }, 2000);
   }
 
   getList(

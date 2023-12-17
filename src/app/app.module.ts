@@ -21,6 +21,8 @@ import {
   HttpHandler,
 } from '@angular/common/http';
 import { PrintComponent } from './component/print/print.component';
+import { SuggestionOptionsComponent } from './component/suggestion-options/suggestion-options.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -30,6 +32,7 @@ import { PrintComponent } from './component/print/print.component';
     ButtonComponent,
     ParagraphComponent,
     PrintComponent,
+    SuggestionOptionsComponent,
   ],
   imports: [
     BrowserModule,
@@ -42,6 +45,8 @@ import { PrintComponent } from './component/print/print.component';
     HttpClientModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
+    FormsModule,
+    ReactiveFormsModule,
   ],
   providers: [HttpClient],
   bootstrap: [AppComponent],

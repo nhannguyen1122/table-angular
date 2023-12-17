@@ -1,0 +1,22 @@
+<div class="s-container">
+    <div class="s-select" (click)="handleClick()">
+        <div class="s-select-input" [ngClass]="{'s-select-input-focus':isOpen}">
+        {{selectedOptions.label}}</div>
+        <div class="s-select-arrow">
+            <img class="s-select-arrow-image" [ngClass]="{'s-select-arrow-image-rotate':isOpen}" src="../../../assets/ico/arrow.svg" alt="">
+        </div>
+    </div> 
+
+    &nbsp;
+    <ng-container *ngIf="isOpen">
+        <div class="s-dropdown">
+            <div class="s-dropdown-search">
+                <input class="s-dropdown-search-box" type="text" placeholder="Tìm kiếm"/>
+            </div>
+    
+            <ul class="s-dropdown-container">
+                <li *ngFor="let item of list" class="s-dropdown-option" (click)="handleSetOptionValue(item)">{{item.label}}</li>
+            </ul>
+        </div>
+    </ng-container>
+</div>
